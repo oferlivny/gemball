@@ -14,6 +14,7 @@ public class GemController : MonoBehaviour
 	public float magnitude_thresh;
 	private bool tapDetected;
 	public Camera camera;
+	private Vector3 sphereInitPos;
 
 	bool gemOn = true;
 	// Use this for initialization
@@ -23,6 +24,7 @@ public class GemController : MonoBehaviour
 			GemService.Instance.Connect ();
 			gem = GemService.Instance.getGem ();
 		}
+		sphereInitPos = Sphere.transform.position; 
 		rb = Sphere.GetComponent<Rigidbody>();
 		tapDetected = false;
 	}
@@ -49,7 +51,7 @@ public class GemController : MonoBehaviour
 		}
 		if (!tapDetected && tapped) {
 			if (gemOn) 
-				rb.velocity = tapDirection(gem.acceleration); //new Vector3 (0, jump_param, 0);
+				rb.velocity = tapDirection2(gem.acceleration, gem.rotation); //new Vector3 (0, jump_param, 0);
 			else 
 				rb.velocity = tapDirection (new Vector3(0.5f,-2.0f,0.0f));
 			
@@ -71,6 +73,8 @@ public class GemController : MonoBehaviour
     {
 		if (Input.GetMouseButton (0)) {
 			gem.Calibrate();
+			Sphere.transform.position = sphereInitPos;
+			rb.velocity = new Vector3(0,0,0);
 		}
     }
 
@@ -104,18 +108,21 @@ public class GemController : MonoBehaviour
 	}
 
 	Vector3 tapDirection(Vector3 acc) {
+
 		float y = jump_param;
 		float x = acc.x / acc.y * jump_param;
 		float z = acc.z / acc.y * jump_param;
 		Vector3 dir = new Vector3(x,y,z);
+
 		return dir;
 	}
-	Vector3 tapDirection2(Vector4 rot) {
-		Vector3 angles = rot.eulerAngles;
-		float y = jump_param;
-		float x = acc.x / acc.y * jump_param;
-		float z = acc.z / acc.y * jump_param;
-		Vector3 dir = new Vector3(x,y,z);
-		return dir;
+	Vector3 tapDirection2(Vector3 acc, Quaternion rot) {
+		
+		//float y = jump_param;
+		//float x = acc.x / acc.y * jump_param;
+		//float z = acc.z / acc.y * jump_param;
+		Vector3 dir = new Vector3(0,jump_param,0);
+		
+		return rot*dir;
 	}
 }
