@@ -8,14 +8,18 @@ public class GemController : MonoBehaviour
     private IGem gem;
 	public GameObject Sphere;
 	public Rigidbody rb;
-
+	public AudioSource sound;
+	public float jump_param;
+	public float magnitude_thresh;
+	private bool tapDetected;
 	// Use this for initialization
 	void Start()
     {
        	GemService.Instance.Connect();
        	gem = GemService.Instance.getGem();
 		rb = Sphere.GetComponent<Rigidbody>();
-    }
+		tapDetected = false;
+	}
 	
 	// Update is called once per frame
 	void Update()
@@ -27,8 +31,16 @@ public class GemController : MonoBehaviour
 
     void FixedUpdate()
     {
-		if (isTapped (gem.acceleration))
-			rb.velocity = new Vector3 (0,2,0);
+		bool tapped = isTapped (gem.acceleration);
+		if (!tapDetected && tapped) {
+			rb.velocity = new Vector3 (0, jump_param, 0);
+			if (sound.isPlaying)
+				sound.Stop ();
+			sound.Play ();
+			tapDetected = true;
+		} else if (!tapped) {
+			tapDetected = false;
+		}
     }
 
     void OnApplicationQuit()
@@ -50,7 +62,7 @@ public class GemController : MonoBehaviour
 
 	bool isTapped(Vector3 acc)
 	{
-		if (acc.magnitude>1.1)
+		if (acc.magnitude>magnitude_thresh)
 			return true;
 		return false;
 	}
