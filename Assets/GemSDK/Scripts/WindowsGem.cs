@@ -108,9 +108,9 @@ namespace GemSDK.Unity
         public void Stop(bool block)
         {
             running = false;
-
             if (block)
                 listeningThread.Join();
+
         }
 
         private void ListeningThread()
@@ -147,9 +147,11 @@ namespace GemSDK.Unity
                 catch (Exception e)
                 {
                     Debug.LogError(e.Message);
-                    throw e;
+                 
                 }
             }
+			pipe.Close ();
+			Debug.LogWarning ("Closing Pipe");
         }
 
         private void HandleMessage(MessageType messageType, byte[] payload)
